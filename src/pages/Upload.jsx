@@ -24,7 +24,7 @@ const CSVUploader = ({ onColumnsDetected }) => {
         const rows = results.data;
         setPreview(rows);
 
-        // ⬇️ NEW UPDATED LOGIC YOU ASKED FOR
+        //  NEW UPDATED LOGIC YOU ASKED FOR
         const detected = detectColumns(rows);
         setDetectedColumns(detected);
 
