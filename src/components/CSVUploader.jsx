@@ -1,16 +1,29 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
 import { validateCSV } from "../utils/csvValidation";
+import ColumnMapper from "./ColumnMapper";
+import ForecastChart from "./ForecastChart";
+import { dummyForecastData } from "../utils/dummyForecast";
 
 export default function CSVUploader() {
   const [preview, setPreview] = useState([]);
   const [columns, setColumns] = useState([]);
   const [errors, setErrors] = useState([]);
   const [isValid, setIsValid] = useState(false);
+  const [mapping, setMapping] = useState({});
+  const [showForecast, setShowForecast] = useState(false);
 
   const handleCSV = (event) => {
     const file = event.target.files[0];
     if (!file) return;
+
+    // reset previous state
+    setPreview([]);
+    setColumns([]);
+    setErrors([]);
+    setIsValid(false);
+    setMapping({});
+    setShowForecast(false);
 
     Papa.parse(file, {
       header: true,
@@ -18,13 +31,12 @@ export default function CSVUploader() {
       complete: (results) => {
         const rows = results.data;
 
-        // Run validation
+        // Validate CSV
         const validation = validateCSV(rows);
-
         setErrors(validation.errors);
         setIsValid(validation.isValid);
 
-        // Preview first 10 rows only
+        // Show first 10 rows as preview
         setPreview(rows.slice(0, 10));
 
         // Detect columns
@@ -63,7 +75,7 @@ export default function CSVUploader() {
       {/* SUCCESS STATE */}
       {isValid && (
         <div className="mt-4 bg-green-100 border border-green-300 p-3 rounded text-green-700">
-          ✅ Data looks good. You can continue.
+          ✅ Data looks good. Please map your columns.
         </div>
       )}
 
@@ -74,7 +86,7 @@ export default function CSVUploader() {
         </div>
       )}
 
-      {/* CSV TABLE PREVIEW */}
+      {/* CSV PREVIEW TABLE */}
       {preview.length > 0 && (
         <div className="mt-6 overflow-auto border rounded">
           <table className="w-full text-sm border-collapse">
@@ -102,19 +114,21 @@ export default function CSVUploader() {
         </div>
       )}
 
-      {/* CONTINUE BUTTON */}
-      <div className="mt-6 text-right">
-        <button
-          disabled={!isValid}
-          className={`px-4 py-2 rounded text-white ${
-            isValid
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Continue to Forecast
-        </button>
-      </div>
+      {/* COLUMN MAPPING */}
+      {isValid && columns.length > 0 && (
+        <ColumnMapper
+          columns={columns}
+          mapping={mapping}
+          setMapping={setMapping}
+          onContinue={() => {
+            console.log("Final Mapping:", mapping);
+            setShowForecast(true);
+          }}
+        />
+      )}
+
+      {/* FORECAST CHART */}
+      {showForecast && <ForecastChart data={dummyForecastData} />}
     </div>
   );
 }
