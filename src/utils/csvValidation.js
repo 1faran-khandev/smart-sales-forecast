@@ -8,7 +8,7 @@
 export function validateCSV(rows) {
   const errors = [];
 
-  // 1️⃣ Check empty file
+  //  Check empty file
   if (!rows || rows.length === 0) {
     return {
       isValid: false,
@@ -20,7 +20,7 @@ export function validateCSV(rows) {
 
   const columns = Object.keys(rows[0]).map((c) => c.toLowerCase());
 
-  // 2️⃣ Required columns check
+  //  Required columns check
   requiredColumns.forEach((col) => {
     if (!columns.includes(col)) {
       errors.push(`Missing required column: "${col}"`);
@@ -35,7 +35,7 @@ export function validateCSV(rows) {
     };
   }
 
-  // 3️⃣ Validate rows
+  //  Validate rows
   rows.forEach((row, index) => {
     const rowNumber = index + 2; // account for header row
 
@@ -53,7 +53,7 @@ export function validateCSV(rows) {
     }
   });
 
-  // 4️⃣ Final result
+  //  Final result
   return {
     isValid: errors.length === 0,
     errors,
