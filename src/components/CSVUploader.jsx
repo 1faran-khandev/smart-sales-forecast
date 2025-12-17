@@ -1,134 +1,125 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
-import { validateCSV } from "../utils/csvValidation";
-import ColumnMapper from "./ColumnMapper";
-import ForecastChart from "./ForecastChart";
-import { dummyForecastData } from "../utils/dummyForecast";
 
-export default function CSVUploader() {
+const CSVUploader = ({ onColumnsDetected }) => {
   const [preview, setPreview] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [errors, setErrors] = useState([]);
-  const [isValid, setIsValid] = useState(false);
-  const [mapping, setMapping] = useState({});
-  const [showForecast, setShowForecast] = useState(false);
+  const [detectedColumns, setDetectedColumns] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleCSV = (event) => {
-    const file = event.target.files[0];
+  // Detect Columns
+  const detectColumns = (rows) => (rows?.length ? Object.keys(rows[0]) : []);
+
+  // Handle CSV Upload
+  const handleUpload = (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    // reset previous state
-    setPreview([]);
-    setColumns([]);
-    setErrors([]);
-    setIsValid(false);
-    setMapping({});
-    setShowForecast(false);
+    if (file.type !== "text/csv") {
+      setError("Only CSV files are allowed.");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError("File size must be less than 2MB.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
 
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
+        setLoading(false);
         const rows = results.data;
+        setPreview(rows);
 
-        // Validate CSV
-        const validation = validateCSV(rows);
-        setErrors(validation.errors);
-        setIsValid(validation.isValid);
+        const detected = detectColumns(rows);
+        setDetectedColumns(detected);
 
-        // Show first 10 rows as preview
-        setPreview(rows.slice(0, 10));
-
-        // Detect columns
-        if (rows.length > 0) {
-          setColumns(Object.keys(rows[0]));
-        }
+        if (onColumnsDetected) onColumnsDetected(detected);
+      },
+      error: (err) => {
+        setLoading(false);
+        setError("Failed to parse CSV: " + err.message);
       },
     });
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Upload Sales CSV</h2>
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">
+        Upload CSV
+      </h2>
 
-      <input
-        type="file"
-        accept=".csv"
-        onChange={handleCSV}
-        className="w-full border p-2 rounded"
-      />
+      {/* File Input */}
+      <div className="mb-4">
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleUpload}
+          className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+        />
+      </div>
 
-      {/* ERROR STATE */}
-      {errors.length > 0 && (
-        <div className="mt-4 bg-red-100 border border-red-300 p-4 rounded">
-          <h3 className="font-semibold text-red-700 mb-2">
-            Data validation failed
-          </h3>
-          <ul className="text-sm text-red-600 list-disc ml-5">
-            {errors.map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-        </div>
+      {loading && (
+        <p className="text-blue-500 mb-2">Parsing CSV, please wait...</p>
       )}
 
-      {/* SUCCESS STATE */}
-      {isValid && (
-        <div className="mt-4 bg-green-100 border border-green-300 p-3 rounded text-green-700">
-          ✅ Data looks good. Please map your columns.
-        </div>
-      )}
+      {error && <p className="text-red-500 mb-2">{error}</p>}
 
-      {/* COLUMN PREVIEW */}
-      {columns.length > 0 && (
-        <div className="mt-4 text-sm text-gray-700">
-          <strong>Detected Columns:</strong> {columns.join(", ")}
-        </div>
-      )}
-
-      {/* CSV PREVIEW TABLE */}
       {preview.length > 0 && (
-        <div className="mt-6 overflow-auto border rounded">
-          <table className="w-full text-sm border-collapse">
-            <thead className="bg-gray-100">
-              <tr>
-                {Object.keys(preview[0]).map((col) => (
-                  <th key={col} className="border p-2 text-left">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {preview.map((row, index) => (
-                <tr key={index} className="border-t">
-                  {Object.values(row).map((val, i) => (
-                    <td key={i} className="border p-2">
-                      {val}
-                    </td>
+        <>
+          {/* CSV Preview */}
+          <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">
+            CSV Preview (10 rows)
+          </h3>
+          <div className="overflow-auto border rounded mb-4">
+            <table className="min-w-full text-sm">
+              <thead className="bg-gray-100 dark:bg-gray-700 border-b">
+                <tr>
+                  {Object.keys(preview[0]).map((col, index) => (
+                    <th
+                      key={index}
+                      className="px-3 py-2 border text-gray-700 dark:text-gray-200"
+                    >
+                      {col}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {preview.slice(0, 10).map((row, rowIndex) => (
+                  <tr key={rowIndex} className="border-b">
+                    {Object.values(row).map((value, colIndex) => (
+                      <td
+                        key={colIndex}
+                        className="px-3 py-2 border text-gray-800 dark:text-gray-100"
+                      >
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      {/* COLUMN MAPPING */}
-      {isValid && columns.length > 0 && (
-        <ColumnMapper
-          columns={columns}
-          mapping={mapping}
-          setMapping={setMapping}
-          onContinue={() => {
-            console.log("Final Mapping:", mapping);
-            setShowForecast(true);
-          }}
-        />
+          {/* Detected Columns */}
+          <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">
+            Detected Columns
+          </h3>
+          <ul className="list-disc ml-6 text-gray-800 dark:text-gray-100">
+            {detectedColumns.map((col, index) => (
+              <li key={index}>{col}</li>
+            ))}
+          </ul>
+        </>
       )}
-
-      {/* FORECAST CHART */}
-      {showForecast && <ForecastChart data={dummyForecastData} />}
     </div>
   );
-}
+};
+
+export default CSVUploader;

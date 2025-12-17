@@ -1,90 +1,45 @@
 import React, { useState } from "react";
-import Papa from "papaparse";
+import CSVUploader from "../components/CSVUploader";
 
-const CSVUploader = ({ onColumnsDetected }) => {
-  const [preview, setPreview] = useState([]);
-  const [detectedColumns, setDetectedColumns] = useState([]);
+export default function Upload() {
+  const [columns, setColumns] = useState([]);
 
-  // --- Detect Columns Function ---
-  const detectColumns = (rows) => {
-    if (!rows || rows.length === 0) return [];
-
-    return Object.keys(rows[0]);
-  };
-
-  // --- Handle CSV Upload ---
-  const handleUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const rows = results.data;
-        setPreview(rows);
-
-        //  NEW UPDATED LOGIC YOU ASKED FOR
-        const detected = detectColumns(rows);
-        setDetectedColumns(detected);
-
-        if (onColumnsDetected) {
-          onColumnsDetected(detected);
-        }
-      },
-    });
+  const handleColumnsDetected = (detected) => {
+    setColumns(detected);
+    console.log("Detected columns:", detected);
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow bg-white">
-      <h2 className="text-xl font-semibold mb-3">Upload CSV</h2>
+    <div className="space-y-6">
+      {/* Page Title */}
+      <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">
+        Upload CSV
+      </h1>
 
-      <input
-        type="file"
-        accept=".csv"
-        onChange={handleUpload}
-        className="mb-4"
-      />
+      {/* Page Description */}
+      <p className="text-gray-600 dark:text-gray-300">
+        Upload your CSV file to analyze sales, forecasts, or inventory data. 
+        Preview the data and detected columns before processing.
+      </p>
 
-      {preview.length > 0 && (
-        <>
-          <h3 className="text-lg font-semibold mb-2">CSV Preview (10 rows)</h3>
+      {/* CSV Uploader */}
+      <div className="max-w-4xl">
+        <CSVUploader onColumnsDetected={handleColumnsDetected} />
+      </div>
 
-          <div className="overflow-auto border rounded">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-100 border-b">
-                <tr>
-                  {Object.keys(preview[0]).map((col, index) => (
-                    <th key={index} className="px-3 py-2 border">
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {preview.slice(0, 10).map((row, rowIndex) => (
-                  <tr key={rowIndex} className="border-b">
-                    {Object.values(row).map((value, colIndex) => (
-                      <td key={colIndex} className="px-3 py-2 border">
-                        {value}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <h3 className="text-lg font-semibold mt-4">Detected Columns</h3>
-          <ul className="list-disc ml-6">
-            {detectedColumns.map((col, index) => (
-              <li key={index}>{col}</li>
+      {/* Optional: Show Detected Columns Summary */}
+      {columns.length > 0 && (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl shadow">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+            Detected Columns Summary
+          </h3>
+          <ul className="list-disc list-inside text-gray-700 dark:text-gray-200">
+            {columns.map((col, idx) => (
+              <li key={idx}>{col}</li>
             ))}
           </ul>
-        </>
+        </div>
       )}
     </div>
   );
-};
-
-export default CSVUploader;
+}

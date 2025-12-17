@@ -1,4 +1,9 @@
-import { FaDollarSign, FaChartLine, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaDollarSign,
+  FaChartLine,
+  FaExclamationTriangle,
+  FaArrowUp,
+} from "react-icons/fa";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -6,25 +11,53 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip,
   Legend,
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
 
 export default function Dashboard() {
-  // Dummy data for forecast chart
+  const kpis = [
+    {
+      title: "Total Sales",
+      value: "$12,345",
+      change: "+8.2%",
+      icon: <FaDollarSign />,
+      color: "text-green-500",
+    },
+    {
+      title: "7-Day Forecast",
+      value: "$14,200",
+      change: "+12.5%",
+      icon: <FaChartLine />,
+      color: "text-blue-500",
+    },
+    {
+      title: "Inventory Alerts",
+      value: "3 Items Low",
+      change: "Action Needed",
+      icon: <FaExclamationTriangle />,
+      color: "text-red-500",
+    },
+  ];
+
   const data = {
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     datasets: [
       {
         label: "Forecasted Sales",
         data: [120, 200, 150, 170, 210, 190, 230],
-        fill: false,
-        backgroundColor: "#3B82F6",
         borderColor: "#3B82F6",
-        tension: 0.3,
+        backgroundColor: "rgba(59,130,246,0.1)",
+        tension: 0.4,
       },
     ],
   };
@@ -32,50 +65,47 @@ export default function Dashboard() {
   const options = {
     responsive: true,
     plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Next 7 Days Sales Forecast",
-      },
+      legend: { display: false },
     },
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Title */}
-      <h1 className="text-3xl font-semibold">Dashboard</h1>
-
+    <div className="space-y-8">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-4 bg-white shadow rounded flex items-center gap-4">
-          <FaDollarSign className="text-3xl text-green-500" />
-          <div>
-            <p className="text-gray-500">Total Sales</p>
-            <p className="text-xl font-bold">$12,345</p>
-          </div>
-        </div>
+        {kpis.map((kpi) => (
+          <div
+            key={kpi.title}
+            className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {kpi.title}
+                </p>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {kpi.value}
+                </h3>
+              </div>
 
-        <div className="p-4 bg-white shadow rounded flex items-center gap-4">
-          <FaChartLine className="text-3xl text-blue-500" />
-          <div>
-            <p className="text-gray-500">Next 7 Days Forecast</p>
-            <p className="text-xl font-bold">~ $14,200</p>
-          </div>
-        </div>
+              <div className={`text-3xl ${kpi.color}`}>
+                {kpi.icon}
+              </div>
+            </div>
 
-        <div className="p-4 bg-white shadow rounded flex items-center gap-4">
-          <FaExclamationTriangle className="text-3xl text-red-500" />
-          <div>
-            <p className="text-gray-500">Inventory Alerts</p>
-            <p className="text-xl font-bold">3 Items Low</p>
+            <div className="mt-2 flex items-center text-sm text-green-600">
+              <FaArrowUp className="mr-1" />
+              {kpi.change}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Forecast Chart */}
-      <div className="p-4 bg-white shadow rounded">
+      {/* Sales Forecast Chart */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+          7-Day Sales Forecast
+        </h3>
         <Line data={data} options={options} />
       </div>
     </div>

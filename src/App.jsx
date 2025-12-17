@@ -1,21 +1,23 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import { Suspense, lazy } from "react";
 
-import Dashboard from "./pages/Dashboard";
-import Upload from "./pages/Upload";
-import NotFound from "./pages/NotFound"; 
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Upload = lazy(() => import("./pages/Upload"));
+const Forecast = lazy(() => import("./pages/Forecast"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   return (
-    <Routes>
-      {/* All pages using Layout */}
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />       {/* Default page */}
-        <Route path="upload" element={<Upload />} /> {/* /upload page */}
-      </Route>
-
-      {/* Fallback route for unknown paths */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense fallback={<div className="p-6 text-center">Loading...</div>}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="upload" element={<Upload />} />
+          <Route path="forecast" element={<Forecast />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
