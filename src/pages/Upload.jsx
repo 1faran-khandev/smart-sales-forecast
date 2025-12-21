@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import CSVUploader from "../components/CSVUploader";
+import { FaCheckCircle } from "react-icons/fa";
 
 export default function Upload() {
   const [columns, setColumns] = useState([]);
 
   const handleColumnsDetected = (detected) => {
     setColumns(detected);
-    console.log("Detected columns:", detected);
   };
 
   return (
@@ -27,12 +27,13 @@ export default function Upload() {
         <CSVUploader onColumnsDetected={handleColumnsDetected} />
       </div>
 
-      {/* Optional: Show Detected Columns Summary */}
+      {/* Detected Columns Summary */}
       {columns.length > 0 && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl shadow">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-            Detected Columns Summary
-          </h3>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl shadow transform transition-all duration-300 hover:scale-[1.02]">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
+            <FaCheckCircle className="text-green-500" />
+            Detected Columns ({columns.length})
+          </h2>
           <ul className="list-disc list-inside text-gray-700 dark:text-gray-200">
             {columns.map((col, idx) => (
               <li key={idx}>{col}</li>
