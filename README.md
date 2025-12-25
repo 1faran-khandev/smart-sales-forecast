@@ -32,7 +32,7 @@ PapaParse for CSV parsing
 
 ##  Getting Started
 1. Clone the repository
-git clone https://github.com/<your-username>/smart-sales.git
+git clone https://github.com/1faran-khandev/smart-sales.git
 cd smart-sales
 
 2. Install dependencies
