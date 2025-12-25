@@ -69,13 +69,13 @@ export default function Header({ title, onToggleSidebar }) {
               </p>
               <ul className="space-y-2">
                 <li className="text-gray-600 dark:text-gray-300">
-                  📊 New forecast generated
+                   New forecast generated
                 </li>
                 <li className="text-gray-600 dark:text-gray-300">
-                  📁 File uploaded successfully
+                   File uploaded successfully
                 </li>
                 <li className="text-gray-600 dark:text-gray-300">
-                  ⚠️ Data variance detected
+                   Data variance detected
                 </li>
               </ul>
             </div>
