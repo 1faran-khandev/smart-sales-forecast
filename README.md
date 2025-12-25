@@ -47,10 +47,14 @@ in your browser.
 
 ## Folder Structure
 src/
-├─ components/        # Header, Sidebar, CSVUploader, ColumnMapper, Layout
+├─ components/ # Header, Sidebar, CSVUploader, ColumnMapper, Layout
+
 ├─ pages/             # Dashboard, Upload, Forecast, NotFound
+
 ├─ data/              # Dummy data
+
 ├─ App.jsx
+
 └─ index.jsx
 
 ##  License
