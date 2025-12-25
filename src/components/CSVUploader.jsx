@@ -99,7 +99,7 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
 
       {fileName && !loading && !error && (
         <p className="mt-4 text-green-600 dark:text-green-400">
-          ✅ {fileName} uploaded successfully
+           {fileName} uploaded successfully
         </p>
       )}
 
