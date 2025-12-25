@@ -28,7 +28,7 @@ export default function ForecastChart({ data = [], loading }) {
   const lastActual = data[data.length - 1]?.actual;
   const lastForecast = data[data.length - 1]?.forecast;
   const trend =
-    lastForecast > lastActual ? "📈 Upward trend expected" : "📉 Downward trend expected";
+    lastForecast > lastActual ? " Upward trend expected" : " Downward trend expected";
 
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow mt-6">
