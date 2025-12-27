@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Papa from "papaparse";
 
 const PREVIEW_LIMIT = 10;
@@ -9,10 +9,12 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
+  const fileInputRef = useRef(null);
 
-  const detectColumns = (rows) =>
-    rows?.length ? Object.keys(rows[0]) : [];
+  // Detect column names from CSV rows
+  const detectColumns = (rows) => (rows?.length ? Object.keys(rows[0]) : []);
 
+  // Validate uploaded file
   const validateFile = (file) => {
     if (!file) return "No file selected.";
     if (file.type !== "text/csv") return "Only CSV files are allowed.";
@@ -21,17 +23,16 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
     return "";
   };
 
+  // Parse CSV using PapaParse
   const parseCSV = (file) => {
     setLoading(true);
     setError("");
-
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: ({ data }) => {
         setLoading(false);
         setPreview(data.slice(0, PREVIEW_LIMIT));
-
         const columns = detectColumns(data);
         setDetectedColumns(columns);
         onColumnsDetected?.(columns);
@@ -49,9 +50,25 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
       setError(validationError);
       return;
     }
-
     setFileName(file.name);
     parseCSV(file);
+  };
+
+  // Handle drag & drop
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handleUpload(file);
+  };
+
+  const handleDragOver = (e) => e.preventDefault();
+
+  const clearFile = () => {
+    setPreview([]);
+    setDetectedColumns([]);
+    setFileName("");
+    setError("");
+    fileInputRef.current.value = null;
   };
 
   return (
@@ -64,10 +81,12 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
       </p>
 
       {/* Upload Area */}
-      <label
-        htmlFor="csv-upload"
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
         className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer
                    border-gray-300 dark:border-gray-600 hover:border-blue-500 transition"
+        onClick={() => fileInputRef.current.click()}
       >
         <span className="text-sm text-gray-600 dark:text-gray-300">
           Drag & drop your CSV here, or click to browse
@@ -76,37 +95,44 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
           Max size: {maxFileSizeMB}MB
         </span>
         <input
-          id="csv-upload"
+          ref={fileInputRef}
           type="file"
           accept=".csv"
           onChange={(e) => handleUpload(e.target.files[0])}
           className="hidden"
         />
-      </label>
+      </div>
 
-      {/* Status */}
+      {/* Status Messages */}
       {loading && (
-        <p className="mt-4 text-blue-500 animate-pulse">
+        <p role="status" className="mt-4 text-blue-500 animate-pulse">
           Parsing CSV and analyzing structure…
         </p>
       )}
 
       {error && (
-        <p className="mt-4 text-red-500 font-medium">
+        <p role="alert" className="mt-4 text-red-500 font-medium">
           {error}
         </p>
       )}
 
       {fileName && !loading && !error && (
-        <p className="mt-4 text-green-600 dark:text-green-400">
-           {fileName} uploaded successfully
-        </p>
+        <div className="mt-4 flex items-center justify-between">
+          <p role="status" className="text-green-600 dark:text-green-400">
+            {fileName} uploaded successfully
+          </p>
+          <button
+            onClick={clearFile}
+            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm"
+          >
+            Clear File
+          </button>
+        </div>
       )}
 
-      {/* Results */}
+      {/* Detected Columns */}
       {preview.length > 0 && (
         <>
-          {/* Columns */}
           <h3 className="text-lg font-semibold mt-6 mb-2 text-gray-700 dark:text-gray-200">
             Detected Columns
           </h3>
@@ -121,7 +147,7 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
             ))}
           </div>
 
-          {/* Preview Table */}
+          {/* Data Preview Table */}
           <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">
             Data Preview (first {PREVIEW_LIMIT} rows)
           </h3>
@@ -132,6 +158,7 @@ export default function CSVUploader({ onColumnsDetected, maxFileSizeMB = 2 }) {
                   {Object.keys(preview[0]).map((col) => (
                     <th
                       key={col}
+                      scope="col"
                       className="px-3 py-2 border text-left text-gray-700 dark:text-gray-200"
                     >
                       {col}

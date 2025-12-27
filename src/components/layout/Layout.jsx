@@ -4,9 +4,6 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { ErrorBoundary } from "react-error-boundary";
 
-/**
- * Centralized page title config (scalable)
- */
 const PAGE_TITLES = {
   "/": "Dashboard",
   "/upload": "Upload CSV",
@@ -14,9 +11,6 @@ const PAGE_TITLES = {
   "/insights": "Insights",
 };
 
-/**
- * Error fallback component for ErrorBoundary
- */
 function LayoutErrorFallback({ error, resetErrorBoundary }) {
   return (
     <div className="p-6 text-center text-red-500 space-y-4">
@@ -38,24 +32,15 @@ export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  /**
-   * Close sidebar on route change (mobile UX)
-   */
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
 
-  /**
-   * Memoized page title
-   */
   const pageTitle = useMemo(
     () => PAGE_TITLES[location.pathname] || "Application",
     [location.pathname]
   );
 
-  /**
-   * Sync browser tab title
-   */
   useEffect(() => {
     document.title = `${pageTitle} | Smart Forecast`;
   }, [pageTitle]);
@@ -68,17 +53,14 @@ export default function Layout() {
       {/* Overlay (mobile only) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          className="fixed inset-0 bg-black/40 z-30 md:hidden transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Main Content */}
-      <div
-        className={`flex flex-col min-h-screen transition-all duration-300
-          ${sidebarOpen ? "md:ml-64" : "md:ml-64"}
-        `}
-      >
+      <div className="flex flex-col min-h-screen transition-all duration-300 md:ml-64">
         {/* Header */}
         <Header
           title={pageTitle}

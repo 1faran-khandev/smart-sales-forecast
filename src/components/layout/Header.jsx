@@ -13,7 +13,7 @@ export default function Header({ title, onToggleSidebar }) {
   const [showProfile, setShowProfile] = useState(false);
   const notificationCount = 3;
 
-  // Sync theme
+  // Sync theme from localStorage
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     const isDark = theme === "dark";
@@ -30,7 +30,7 @@ export default function Header({ title, onToggleSidebar }) {
 
   return (
     <header className="sticky top-0 z-40 h-16 bg-white dark:bg-gray-800 shadow-sm px-6 flex items-center justify-between">
-      {/* Left */}
+      {/* Left: Sidebar toggle + Page Title */}
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleSidebar}
@@ -45,7 +45,7 @@ export default function Header({ title, onToggleSidebar }) {
         </h1>
       </div>
 
-      {/* Right */}
+      {/* Right: Notifications, Theme Toggle, Profile */}
       <div className="flex items-center gap-5 relative">
         {/* Notifications */}
         <div className="relative">
@@ -69,20 +69,20 @@ export default function Header({ title, onToggleSidebar }) {
               </p>
               <ul className="space-y-2">
                 <li className="text-gray-600 dark:text-gray-300">
-                   New forecast generated
+                  New forecast generated
                 </li>
                 <li className="text-gray-600 dark:text-gray-300">
-                   File uploaded successfully
+                  File uploaded successfully
                 </li>
                 <li className="text-gray-600 dark:text-gray-300">
-                   Data variance detected
+                  Data variance detected
                 </li>
               </ul>
             </div>
           )}
         </div>
 
-        {/* Theme toggle */}
+        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className="text-gray-600 dark:text-gray-200 hover:text-blue-600 transition"
@@ -91,7 +91,7 @@ export default function Header({ title, onToggleSidebar }) {
           {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
         </button>
 
-        {/* Profile */}
+        {/* Profile Menu */}
         <div className="relative">
           <button
             onClick={() => setShowProfile((p) => !p)}

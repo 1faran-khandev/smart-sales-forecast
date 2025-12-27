@@ -12,17 +12,39 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path={ROUTES.DASHBOARD} element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path={ROUTES.UPLOAD.slice(1)} element={<Upload />} />
-            <Route path={ROUTES.FORECAST.slice(1)} element={<Forecast />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </ErrorBoundary>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <ErrorBoundary>
+                <Dashboard />
+              </ErrorBoundary>
+            }
+          />
+
+          <Route
+            path={ROUTES.UPLOAD}
+            element={
+              <ErrorBoundary>
+                <Upload />
+              </ErrorBoundary>
+            }
+          />
+
+          <Route
+            path={ROUTES.FORECAST}
+            element={
+              <ErrorBoundary>
+                <Forecast />
+              </ErrorBoundary>
+            }
+          />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
